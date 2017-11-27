@@ -1,0 +1,13 @@
+/_build
+/deps
+/cover
+/doc
+erl_crash.dump
+*.ez
+/node_modules
+*.swn
+*.swm
+*~
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]

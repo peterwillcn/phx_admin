@@ -1,0 +1,77 @@
+<% import PhxAdmin.Gettext %>
+<header class="main-header" id="header">
+  <a href="#" class="logo">
+    <span class="logo-mini"><%= PhxAdmin.LayoutView.logo_mini %></span>
+    <!-- logo for regular state and mobile devices -->
+    <span class="logo-lg"><%= PhxAdmin.LayoutView.logo_full %></span>
+  </a>
+
+  <nav class="navbar navbar-static-top" role="navigation">
+    <!-- Sidebar toggle button-->
+    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+    <ul class="nav navbar-nav pull-right">
+      <%= if use_authentication?(@conn) do %>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <%= current_user_name(@conn) %> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <li>
+              <%= Phoenix.HTML.Link.link (gettext "Profile"), to: PhxAdmin.Utils.admin_resource_path(current_user(@conn)) %>
+            </li>
+            <li>
+              <%= Phoenix.HTML.Link.link (gettext "Logout"), to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+            </li>
+          </ul>
+        </li>
+      <% end %>
+      <%= if PhxAdmin.Theme.AdminLte2.Layout.theme_selector? do %>
+        <li class="dropdown" style="width: 100px">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <% gettext "Themes" %> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <%= PhxAdmin.Theme.AdminLte2.Layout.theme_selector %>
+          </ul>
+        </li>
+      <% end %>
+      <%= PhxAdmin.Theme.AdminLte2.Layout.switch_user(@conn) %>
+    </ul>
+  </nav>
+</header>
+<aside class="main-sidebar">
+  <section class="sidebar">
+    <!-- Sidebar Menu -->
+    <ul class="sidebar-menu">
+      <li class="header text-uppercase"><%= gettext "Resources" %></li>
+      <!-- Optionally, you can add icons to the links -->
+      <%= if Application.get_env(:phx_admin, :nest_resources, false) do %>
+        <li class="treeview active">
+          <a href="#"><i class="fa fa-object-group"></i> <span><%= gettext "Resources" %></span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu menu-open" style="display: block;">
+            <%= PhxAdmin.Navigation.nav_view(@conn) %>
+          </ul>
+        </li>
+      <% else %>
+        <%= PhxAdmin.Navigation.nav_view(@conn) %>
+      <% end %>
+
+      <% actions = PhxAdmin.get_title_actions(@conn) %>
+      <%= if any_actions?(actions) do %>
+        <li class="header text-uppercase"><%= gettext "Actions" %></li>
+        <%= for {action, opts} <- actions do %>
+          <li>
+            <% opts = build_menu_icon(action, opts) %>
+            <%= build_link(action, opts) %>
+          </li>
+        <% end %>
+      <% end %>
+      <%= if @scope_counts && Enum.count(@scope_counts) > 0 do %>
+        <li class="header text-uppercase"><%= gettext "Scopes" %></li>
+      <% end %>
+      <%= build_scopes @conn, @scope_counts %>
+    </ul><!-- /.sidebar-menu -->
+  </section>
+</aside>

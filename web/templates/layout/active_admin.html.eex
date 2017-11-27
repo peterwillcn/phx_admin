@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="csrf-param" content="_csrf_token" />
+    <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
+    <%= favicon() %>
+    <title><%= site_title() %></title>
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
+
+    <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
+    <%=
+      case Application.get_env(:phx_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
+  </head>
+
+  <% resource_label = PhxAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
+
+  <body class="index admin_<%= resource_label %> active_admin logged_in admin_namespace">
+      <div id="wrapper">
+        <%= render PhxAdmin.ActiveAdmin.LayoutView, "header.html", conn: @conn, scope_counts: assigns[:scope_counts] %>
+        <%= PhxAdmin.Theme.ActiveAdmin.Layout.title_bar(@conn, @resource) %>
+        <%= PhxAdmin.ViewHelpers.flashes(@conn) %>
+        <% {sidebars?, klass} = check_for_sidebars(@conn, @filters, @defn) %>
+        <div id="active_admin_content" class="<%= klass %>">
+          <div id="main_content_wrapper">
+            <div id="main_content">
+              <%= render @view_module, @view_template, assigns %>
+            </div>
+          </div>
+          <%= if sidebars? do %>
+            <div id="sidebar">
+              <%= PhxAdmin.Filter.filter_view(@conn, @filters, @defn) %>
+              <%= PhxAdmin.Sidebar.sidebar_view(@conn, @defn, @resource) %>
+            </div>
+          <% end %>
+        </div>
+        <footer id="footer" style="font-size: 90%">
+          <% footer = Application.get_env(:phx_admin, :footer) %>
+          <%= if footer do %>
+            <%= footer %>
+          <% else %>
+            <hr />
+            <%= PhxAdmin.LayoutView.footer_content %>
+          <% end %>
+        </footer>
+      </div>
+    </body>
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script type="text/javascript">
+      $(function() {
+        $('#theme-selector').change(function(e) {
+          var val = $(this).val()
+          var prefix = "/<%= Application.get_env(:phx_admin, :route_prefix, "admin") %>";
+          window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
+        });
+      });
+    </script>
+</html>
